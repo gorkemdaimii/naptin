@@ -159,14 +159,13 @@
       white-space:nowrap;
     }
 
-    /* 🔥 Mobil fix: panel-body scroll değil, layout */
     .panel-body{
       padding:12px;
       flex: 1 1 auto;
       display:flex;
       flex-direction:column;
       gap: 10px;
-      overflow:hidden; /* tray sabit kalacak */
+      overflow:hidden;
       min-height: 0;
     }
 
@@ -182,7 +181,6 @@
       display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;
     }
 
-    /* GAME: board alanı + altta sabit tray */
     .game{
       flex: 1 1 auto;
       min-height: 0;
@@ -205,7 +203,6 @@
       display:flex;
     }
 
-    /* board artık yüksekliğe fit */
     .board{
       width:100%;
       height:100%;
@@ -230,7 +227,6 @@
       pointer-events:none;
     }
 
-    /* tray altta her zaman görünür */
     .trayWrap{
       flex: 0 0 auto;
       width: 100%;
@@ -293,7 +289,6 @@
       border:1px solid rgba(255,255,255,0.12);
     }
 
-    /* Drag ghost */
     .ghost{
       position:fixed;
       left:0;top:0;
@@ -336,7 +331,6 @@
 
     <div class="footer" id="footer">Bir Görkem Daimi Yapımıdır.</div>
 
-    <!-- Puzzle Modal -->
     <div class="modal" id="puzzleModal" role="dialog" aria-modal="true">
       <div class="panel">
         <div class="panel-header">
@@ -369,7 +363,6 @@
       </div>
     </div>
 
-    <!-- Drag ghost -->
     <div class="ghost" id="ghost"><div class="ghostGrid" id="ghostGrid"></div></div>
   </div>
 
@@ -498,8 +491,13 @@
     wrap.addEventListener("pointermove", onPointerMove);
     document.addEventListener("touchmove", (e) => e.preventDefault(), { passive:false });
 
+    // ✅ İSTEDİĞİN: 15sn dokunulamazken de dokunmaya çalışınca KAÇSIN
     cat.addEventListener("pointerdown", (e) => {
       e.preventDefault();
+
+      const rect = wrap.getBoundingClientRect();
+      runAwayFrom(e.clientX - rect.left, e.clientY - rect.top);
+
       if (!canTapCat){
         bubble.textContent = "Dur bi… 15 saniye bekle 😾";
         footer.textContent = "Kedi şu an dokunulmaz ⏳";
@@ -520,9 +518,6 @@
       } else {
         bubble.textContent = "Hehe yine olmadı 😼";
       }
-
-      const rect = wrap.getBoundingClientRect();
-      runAwayFrom(e.clientX - rect.left, e.clientY - rect.top);
     });
 
     window.addEventListener("resize", () => {
@@ -530,7 +525,6 @@
       const rect = wrap.getBoundingClientRect();
       setCatPos(catX, catY);
       avoidRadius = Math.max(90, Math.min(140, rect.width * 0.28));
-      // modal açıkken board yeniden ölçülsün
       if (puzzleModal.classList.contains("show")) renderBoard();
     });
 
@@ -551,10 +545,8 @@
     const COLS = 6;
     const ROWS = 10;
 
-    // grid cell = 0 empty, else colorIndex (1..N)
     let grid = Array.from({length: ROWS}, () => Array(COLS).fill(0));
 
-    // visible palette
     const PALETTE = [
       "#7C3AED","#06B6D4","#22C55E","#F97316",
       "#EF4444","#EAB308","#3B82F6","#EC4899"
@@ -681,7 +673,6 @@
       });
     }
 
-    // === Drag logic ===
     let dragging = null;
     let boardRect = null;
 
@@ -806,7 +797,6 @@
       }
     }
 
-    // prep
     ensureTray();
   </script>
 </body>
