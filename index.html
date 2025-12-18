@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Napıyosun Prensesim</title>
+  <title>Napıyosun Prensesim?</title>
   <style>
     :root{
       --bg1:#0b1020; --bg2:#121a33;
@@ -103,7 +103,7 @@
       border:1px solid rgba(0,0,0,.08);border-radius:10px}
     .paw.left{left:24px} .paw.right{right:24px}
 
-    /* MODAL = mobile full screen, desktop wide */
+    /* MODAL */
     .modal{
       position:fixed; inset:0;
       display:none;
@@ -129,7 +129,6 @@
       flex-direction:column;
     }
     @media (min-width: 820px){
-      .modal{display:none}
       .modal.show{
         display:flex; align-items:center; justify-content:center;
         padding: 28px;
@@ -143,12 +142,13 @@
     }
 
     .panel-header{
-      padding:14px 16px;
+      padding:12px 14px;
       display:flex;align-items:center;justify-content:space-between;
       border-bottom:1px solid rgba(255,255,255,0.12);
       flex: 0 0 auto;
+      gap:12px;
     }
-    .panel-title{font-weight:900;font-size:14px;letter-spacing:.2px}
+    .panel-title{font-weight:900;font-size:14px;letter-spacing:.2px;display:flex;align-items:center;gap:8px}
     .btn{
       appearance:none;border:none;cursor:pointer;
       padding:10px 12px;border-radius:14px;
@@ -156,48 +156,65 @@
       border:1px solid rgba(255,255,255,0.16);
       color:rgba(255,255,255,0.9);
       font-weight:800;font-size:12px;
+      white-space:nowrap;
     }
+
+    /* 🔥 Mobil fix: panel-body scroll değil, layout */
     .panel-body{
-      padding:14px;
-      overflow:auto;
+      padding:12px;
       flex: 1 1 auto;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      overflow:hidden; /* tray sabit kalacak */
+      min-height: 0;
     }
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:10px}
+
     .small{font-size:12px;color:rgba(255,255,255,0.72);line-height:1.35}
 
-    /* GAME LAYOUT */
-    .game{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-      align-items:start;
+    .topControls{
+      flex: 0 0 auto;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
     }
-    @media (min-width: 820px){
-      .game{
-        grid-template-columns: 1.1fr .9fr;
-        gap: 16px;
-      }
+    .topRow{
+      display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;
     }
 
-    /* BOARD */
+    /* GAME: board alanı + altta sabit tray */
+    .game{
+      flex: 1 1 auto;
+      min-height: 0;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+
     .boardWrap{
+      flex: 1 1 auto;
+      min-height: 0;
       width: 100%;
-      max-width: 520px;
+      max-width: 560px;
       margin: 0 auto;
       border-radius:20px;
       background:rgba(255,255,255,0.06);
       border:1px solid rgba(255,255,255,0.14);
       padding:10px;
       box-shadow:0 18px 50px rgba(0,0,0,.28) inset;
+      display:flex;
     }
+
+    /* board artık yüksekliğe fit */
     .board{
       width:100%;
+      height:100%;
       display:grid;
       grid-template-columns: repeat(6, 1fr);
       grid-template-rows: repeat(10, 1fr);
       gap: var(--gap);
-      aspect-ratio: 6 / 10;
     }
+
     .cell{
       border-radius:10px;
       background: rgba(255,255,255,0.06);
@@ -213,27 +230,32 @@
       pointer-events:none;
     }
 
-    /* TRAY (pieces) */
-    .side{
+    /* tray altta her zaman görünür */
+    .trayWrap{
+      flex: 0 0 auto;
       width: 100%;
-      max-width: 520px;
+      max-width: 560px;
       margin: 0 auto;
-      display:flex;
-      flex-direction:column;
-      gap: 12px;
+      padding: 10px;
+      border-radius: 18px;
+      background: rgba(0,0,0,0.22);
+      border: 1px solid rgba(255,255,255,0.14);
+      backdrop-filter: blur(10px);
     }
+
     .tray{
       width:100%;
       display:grid;
       grid-template-columns: repeat(3, 1fr);
       gap:10px;
     }
+
     .pieceCard{
       border-radius:18px;
       background:rgba(255,255,255,0.06);
       border:1px solid rgba(255,255,255,0.14);
       padding:10px;
-      min-height:120px;
+      min-height:110px;
       position:relative;
       overflow:hidden;
       touch-action:none;
@@ -255,7 +277,7 @@
       justify-content:center;
       align-content:center;
       width:100%;
-      height:86px;
+      height:76px;
     }
     .miniCell{
       width:22px;height:22px;border-radius:7px;
@@ -264,6 +286,7 @@
     }
 
     .status{
+      margin-top:10px;
       text-align:center;font-size:12px;color:rgba(255,255,255,0.78);
       padding:8px 10px;border-radius:14px;
       background:rgba(255,255,255,0.06);
@@ -296,7 +319,7 @@
   <div class="wrap" id="wrap">
     <div class="hint">
       <h1>🐾 Bana uzun süre naptın diye de sormadın</h1>
-      <p>Önce bi kediyi dinle sonra parmağını kediye yaklaştır → kaçar. Kediye <b>3 kere</b> dokununca "özel bir oyun" seni bekliyor 😼</p>
+      <p>Önce bi kediyi dinle sonra parmağını kediye yaklaştır → kaçar. Kediye 3 kere dokununca "özel bir oyun" seni bekliyor 😼</p>
     </div>
 
     <div class="cat" id="cat" aria-label="kedi">
@@ -311,22 +334,25 @@
       </div>
     </div>
 
-    <div class="footer" id="footer"> Bir görkem daimi yapımıdır. </div>
+    <div class="footer" id="footer">Bir Görkem Daimi Yapımıdır.</div>
 
     <!-- Puzzle Modal -->
     <div class="modal" id="puzzleModal" role="dialog" aria-modal="true">
       <div class="panel">
         <div class="panel-header">
-          <div class="panel-title">🧩 Blok Yerleştirme (renkli + yenilenen)</div>
+          <div class="panel-title">🧩 Blok Yerleştirme</div>
           <div style="display:flex;gap:10px">
             <button class="btn" id="resetBtn">Sıfırla</button>
             <button class="btn" id="closePuzzle">Kapat</button>
           </div>
         </div>
+
         <div class="panel-body">
-          <div class="row">
-            <div class="small">Parçayı aşağıdan sürükle → gride bırak. Yerleşince parça kaybolur, yenisi gelir. Satır dolarsa temizlenir.</div>
-            <button class="btn" id="clearBtn">Tahtayı Temizle</button>
+          <div class="topControls">
+            <div class="topRow">
+              <div class="small">Parçayı sürükle → gride bırak. Yerleşince yenilenir. Satır dolarsa temizlenir.</div>
+              <button class="btn" id="clearBtn">Tahtayı Temizle</button>
+            </div>
           </div>
 
           <div class="game">
@@ -334,7 +360,7 @@
               <div class="board" id="board"></div>
             </div>
 
-            <div class="side">
+            <div class="trayWrap">
               <div class="tray" id="tray"></div>
               <div class="status" id="status">Hazır 😼</div>
             </div>
@@ -371,6 +397,11 @@
     const TAP_TO_UNLOCK = 3;
     let puzzleUnlocked = false;
 
+    // 15 saniye dokunma kilidi
+    let canTapCat = false;
+    let tapUnlockTimer = null;
+    const TAP_LOCK_MS = 15000;
+
     function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
 
     function setCatPos(x, y){
@@ -399,6 +430,10 @@
       cat.classList.add("show");
       isShown = true;
 
+      canTapCat = false;
+      clearTimeout(tapUnlockTimer);
+      footer.textContent = "Kedi 15 sn dokunulmaz ⏳";
+
       setTimeout(() => {
         cat.style.left = (rect.width/2 - 48) + "px";
         cat.style.top  = (rect.height*0.55 - 48) + "px";
@@ -408,6 +443,12 @@
         setTimeout(nextLine, 1200);
         setTimeout(nextLine, 2600);
         setTimeout(nextLine, 4200);
+
+        tapUnlockTimer = setTimeout(() => {
+          canTapCat = true;
+          bubble.textContent = "Tamam… şimdi dokunabilirsin 😼";
+          footer.textContent = "Kedi aktif ✅ 3 dokunuş → puzzle 🧩";
+        }, TAP_LOCK_MS);
       }, 30);
     }
 
@@ -459,12 +500,18 @@
 
     cat.addEventListener("pointerdown", (e) => {
       e.preventDefault();
+      if (!canTapCat){
+        bubble.textContent = "Dur bi… 15 saniye bekle 😾";
+        footer.textContent = "Kedi şu an dokunulmaz ⏳";
+        return;
+      }
+
       tapCount++;
       const left = Math.max(0, TAP_TO_UNLOCK - tapCount);
 
       if (!puzzleUnlocked && left > 0){
         bubble.textContent = `Yakalandım sandın… yakalanmadım ki 😼 (${left} kaldı)`;
-        footer.textContent = `Kediye ${left} dokunuş kaldı → sonra renkli blok puzzle 🧩`;
+        footer.textContent = `Kediye ${left} dokunuş kaldı → puzzle 🧩`;
       } else if (!puzzleUnlocked && left === 0){
         puzzleUnlocked = true;
         bubble.textContent = "Tamam… hadi puzzle 😼";
@@ -483,6 +530,8 @@
       const rect = wrap.getBoundingClientRect();
       setCatPos(catX, catY);
       avoidRadius = Math.max(90, Math.min(140, rect.width * 0.28));
+      // modal açıkken board yeniden ölçülsün
+      if (puzzleModal.classList.contains("show")) renderBoard();
     });
 
     setTimeout(showCat, 700);
@@ -505,19 +554,12 @@
     // grid cell = 0 empty, else colorIndex (1..N)
     let grid = Array.from({length: ROWS}, () => Array(COLS).fill(0));
 
-    // nicer, visible palette
+    // visible palette
     const PALETTE = [
-      "#7C3AED", // purple
-      "#06B6D4", // cyan
-      "#22C55E", // green
-      "#F97316", // orange
-      "#EF4444", // red
-      "#EAB308", // yellow
-      "#3B82F6", // blue
-      "#EC4899"  // pink
+      "#7C3AED","#06B6D4","#22C55E","#F97316",
+      "#EF4444","#EAB308","#3B82F6","#EC4899"
     ];
 
-    // pieces: { id, shape, w,h, colorIndex }
     let pieces = [];
     let idSeq = 1;
 
@@ -697,7 +739,6 @@
         return;
       }
 
-      // map pointer position -> grid index
       const relX = x - boardRect.left;
       const relY = y - boardRect.top;
 
