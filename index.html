@@ -1,0 +1,772 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Napıyosun Prensesim</title>
+  <style>
+    :root{
+      --bg1:#0b1020; --bg2:#121a33;
+      --card:rgba(255,255,255,0.08);
+      --stroke:rgba(255,255,255,0.16);
+      --text:rgba(255,255,255,0.92);
+      --muted:rgba(255,255,255,0.66);
+      --shadow:0 18px 60px rgba(0,0,0,.45);
+      --gap:8px;
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%;margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial}
+    body{
+      background: radial-gradient(1200px 800px at 10% 10%, #1b2a5a 0%, transparent 55%),
+                  radial-gradient(900px 700px at 90% 30%, #5a1b4a 0%, transparent 55%),
+                  linear-gradient(180deg,var(--bg1),var(--bg2));
+      color:var(--text);
+      overflow:hidden;
+      touch-action:none;
+    }
+    .wrap{position:relative;height:100%;width:100%;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right)
+               env(safe-area-inset-bottom) env(safe-area-inset-left);}
+
+    .hint{
+      position:absolute;left:50%;transform:translateX(-50%);top:18px;
+      width:min(720px,calc(100% - 24px));
+      padding:14px 16px;border-radius:18px;
+      background:var(--card);border:1px solid var(--stroke);
+      box-shadow:var(--shadow);backdrop-filter:blur(10px);
+      z-index:2;
+    }
+    .hint h1{margin:0 0 6px 0;font-size:16px;font-weight:800}
+    .hint p{margin:0;font-size:13px;color:var(--muted);line-height:1.45}
+
+    .footer{
+      position:absolute;left:50%;transform:translateX(-50%);bottom:16px;
+      width:min(720px,calc(100% - 24px));
+      padding:10px 12px;border-radius:16px;
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.12);
+      color:rgba(255,255,255,0.62);
+      font-size:12px;text-align:center;backdrop-filter:blur(10px);
+      z-index:2;
+    }
+
+    /* CAT */
+    .cat{
+      position:absolute;width:96px;height:96px;
+      left:50%;top:55%;
+      transform:translate(-50%,-50%) scale(.2);
+      opacity:0;
+      transition:transform 550ms cubic-bezier(.2,.9,.1,1), opacity 350ms ease;
+      will-change:transform,left,top;
+      filter:drop-shadow(0 18px 26px rgba(0,0,0,.45));
+      user-select:none;
+      cursor:pointer;
+      z-index:1;
+    }
+    .cat.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+    .bubble{
+      position:absolute;left:50%;bottom:102%;transform:translateX(-50%);
+      width:max-content;max-width:min(360px,90vw);
+      padding:10px 12px;border-radius:16px;
+      background:rgba(0,0,0,0.55);
+      border:1px solid rgba(255,255,255,0.16);
+      backdrop-filter:blur(8px);
+      box-shadow:0 14px 40px rgba(0,0,0,.35);
+      font-size:12.5px;line-height:1.35;color:rgba(255,255,255,.92);
+      pointer-events:none;
+    }
+    .bubble:after{
+      content:"";position:absolute;left:50%;top:100%;transform:translateX(-50%);
+      border:8px solid transparent;border-top-color:rgba(0,0,0,0.55);
+      filter:drop-shadow(0 6px 10px rgba(0,0,0,.25));
+    }
+    .cat-body{
+      position:absolute;inset:0;border-radius:28px;
+      background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(255,255,255,.82));
+      border:1px solid rgba(0,0,0,.08);
+    }
+    .ear{position:absolute;width:28px;height:28px;top:-10px;transform:rotate(45deg);
+      background:rgba(255,255,255,.9);border:1px solid rgba(0,0,0,.08);
+      border-radius:6px;}
+    .ear.left{left:14px} .ear.right{right:14px}
+    .face{position:absolute;left:50%;top:38px;transform:translateX(-50%);width:66px;height:44px}
+    .eye{position:absolute;top:10px;width:10px;height:10px;background:#0b1020;border-radius:50%;animation:blink 6s infinite}
+    .eye.left{left:10px} .eye.right{right:10px}
+    @keyframes blink{0%,92%,100%{transform:scaleY(1)}94%{transform:scaleY(.1)}96%{transform:scaleY(1)}}
+    .nose{position:absolute;left:50%;top:22px;transform:translateX(-50%) rotate(45deg);width:10px;height:10px;background:#ff7aa2;border-radius:3px}
+    .mouth{position:absolute;left:50%;top:30px;transform:translateX(-50%);width:26px;height:12px}
+    .mouth:before,.mouth:after{
+      content:"";position:absolute;top:0;width:12px;height:10px;border:2px solid rgba(0,0,0,.55);
+      border-color:transparent transparent rgba(0,0,0,.55) transparent;border-radius:0 0 14px 14px}
+    .mouth:before{left:0;transform:rotate(-6deg)} .mouth:after{right:0;transform:rotate(6deg)}
+    .paw{position:absolute;bottom:8px;width:16px;height:12px;background:rgba(255,255,255,.92);
+      border:1px solid rgba(0,0,0,.08);border-radius:10px}
+    .paw.left{left:24px} .paw.right{right:24px}
+
+    /* MODAL = mobile full screen, desktop wide */
+    .modal{
+      position:fixed; inset:0;
+      display:none;
+      background:rgba(0,0,0,.55);
+      backdrop-filter: blur(12px);
+      z-index:50;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right)
+               env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    .modal.show{display:block;}
+    .panel{
+      height:100%;
+      width:100%;
+      max-width: 960px;
+      margin: 0 auto;
+      border-radius: 0;
+      background: rgba(255,255,255,0.08);
+      border-left: 1px solid rgba(255,255,255,0.16);
+      border-right: 1px solid rgba(255,255,255,0.16);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+    }
+    @media (min-width: 820px){
+      .modal{display:none}
+      .modal.show{
+        display:flex; align-items:center; justify-content:center;
+        padding: 28px;
+      }
+      .panel{
+        height: min(92vh, 900px);
+        width: min(920px, 92vw);
+        border-radius: 22px;
+        border: 1px solid rgba(255,255,255,0.16);
+      }
+    }
+
+    .panel-header{
+      padding:14px 16px;
+      display:flex;align-items:center;justify-content:space-between;
+      border-bottom:1px solid rgba(255,255,255,0.12);
+      flex: 0 0 auto;
+    }
+    .panel-title{font-weight:900;font-size:14px;letter-spacing:.2px}
+    .btn{
+      appearance:none;border:none;cursor:pointer;
+      padding:10px 12px;border-radius:14px;
+      background:rgba(255,255,255,0.10);
+      border:1px solid rgba(255,255,255,0.16);
+      color:rgba(255,255,255,0.9);
+      font-weight:800;font-size:12px;
+    }
+    .panel-body{
+      padding:14px;
+      overflow:auto;
+      flex: 1 1 auto;
+    }
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:10px}
+    .small{font-size:12px;color:rgba(255,255,255,0.72);line-height:1.35}
+
+    /* GAME LAYOUT */
+    .game{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      align-items:start;
+    }
+    @media (min-width: 820px){
+      .game{
+        grid-template-columns: 1.1fr .9fr;
+        gap: 16px;
+      }
+    }
+
+    /* BOARD */
+    .boardWrap{
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+      border-radius:20px;
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.14);
+      padding:10px;
+      box-shadow:0 18px 50px rgba(0,0,0,.28) inset;
+    }
+    .board{
+      width:100%;
+      display:grid;
+      grid-template-columns: repeat(6, 1fr);
+      grid-template-rows: repeat(10, 1fr);
+      gap: var(--gap);
+      aspect-ratio: 6 / 10;
+    }
+    .cell{
+      border-radius:10px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      position:relative;
+      overflow:hidden;
+    }
+    .cell::after{
+      content:"";
+      position:absolute; inset:0;
+      background: radial-gradient(120% 120% at 20% 10%, rgba(255,255,255,.18), transparent 60%);
+      opacity:.6;
+      pointer-events:none;
+    }
+
+    /* TRAY (pieces) */
+    .side{
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+    }
+    .tray{
+      width:100%;
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:10px;
+    }
+    .pieceCard{
+      border-radius:18px;
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.14);
+      padding:10px;
+      min-height:120px;
+      position:relative;
+      overflow:hidden;
+      touch-action:none;
+      user-select:none;
+    }
+    .pieceLabel{
+      font-size:11px;color:rgba(255,255,255,0.70);
+      display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;
+      gap:8px;
+    }
+    .dot{
+      width:10px;height:10px;border-radius:999px;
+      border:1px solid rgba(255,255,255,0.25);
+      flex:0 0 auto;
+    }
+    .mini{
+      display:grid;
+      gap:6px;
+      justify-content:center;
+      align-content:center;
+      width:100%;
+      height:86px;
+    }
+    .miniCell{
+      width:22px;height:22px;border-radius:7px;
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.12);
+    }
+
+    .status{
+      text-align:center;font-size:12px;color:rgba(255,255,255,0.78);
+      padding:8px 10px;border-radius:14px;
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.12);
+    }
+
+    /* Drag ghost */
+    .ghost{
+      position:fixed;
+      left:0;top:0;
+      transform:translate(-9999px,-9999px);
+      pointer-events:none;
+      z-index:999;
+      padding:10px;
+      border-radius:18px;
+      background:rgba(255,255,255,0.10);
+      border:1px solid rgba(255,255,255,0.18);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 18px 60px rgba(0,0,0,.35);
+    }
+    .ghostGrid{display:grid;gap:6px}
+    .ghostDot{
+      width:22px;height:22px;border-radius:7px;
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.14);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap" id="wrap">
+    <div class="hint">
+      <h1>🐾 Bana uzun süre naptın diye de sormadın</h1>
+      <p>Önce bi kediyi dinle sonra parmağını kediye yaklaştır → kaçar. Kediye <b>3 kere</b> dokununca "özel bir oyun" seni bekliyor 😼</p>
+    </div>
+
+    <div class="cat" id="cat" aria-label="kedi">
+      <div class="bubble" id="bubble"></div>
+      <div class="cat-body">
+        <div class="ear left"></div><div class="ear right"></div>
+        <div class="face">
+          <div class="eye left"></div><div class="eye right"></div>
+          <div class="nose"></div><div class="mouth"></div>
+        </div>
+        <div class="paw left"></div><div class="paw right"></div>
+      </div>
+    </div>
+
+    <div class="footer" id="footer"> Bir görkem daimi yapımıdır. </div>
+
+    <!-- Puzzle Modal -->
+    <div class="modal" id="puzzleModal" role="dialog" aria-modal="true">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">🧩 Blok Yerleştirme (renkli + yenilenen)</div>
+          <div style="display:flex;gap:10px">
+            <button class="btn" id="resetBtn">Sıfırla</button>
+            <button class="btn" id="closePuzzle">Kapat</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="row">
+            <div class="small">Parçayı aşağıdan sürükle → gride bırak. Yerleşince parça kaybolur, yenisi gelir. Satır dolarsa temizlenir.</div>
+            <button class="btn" id="clearBtn">Tahtayı Temizle</button>
+          </div>
+
+          <div class="game">
+            <div class="boardWrap">
+              <div class="board" id="board"></div>
+            </div>
+
+            <div class="side">
+              <div class="tray" id="tray"></div>
+              <div class="status" id="status">Hazır 😼</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Drag ghost -->
+    <div class="ghost" id="ghost"><div class="ghostGrid" id="ghostGrid"></div></div>
+  </div>
+
+  <script>
+    // ===== CAT =====
+    const wrap = document.getElementById("wrap");
+    const cat = document.getElementById("cat");
+    const bubble = document.getElementById("bubble");
+    const footer = document.getElementById("footer");
+
+    const lines = [
+      "Napıyosun? 😼",
+      "Uzun saatlerdir konuşmadık…",
+      "Bana da naptığımı sormadın.",
+      "Tamam tamam… yakalamaya çalışma (kaçıyorum)"
+    ];
+
+    let lineIndex = 0;
+    let catX = 0, catY = 0;
+    let catW = 96, catH = 96;
+    let avoidRadius = 110;
+    let isShown = false;
+
+    let tapCount = 0;
+    const TAP_TO_UNLOCK = 3;
+    let puzzleUnlocked = false;
+
+    function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+
+    function setCatPos(x, y){
+      const rect = wrap.getBoundingClientRect();
+      catW = cat.offsetWidth; catH = cat.offsetHeight;
+      const pad = 16;
+      const maxX = rect.width - catW - pad;
+      const maxY = rect.height - catH - pad;
+      catX = clamp(x, pad, maxX);
+      catY = clamp(y, pad + 60, maxY);
+      cat.style.left = catX + "px";
+      cat.style.top = catY + "px";
+      cat.style.transform = "translate(0,0) scale(1)";
+    }
+
+    function nextLine(){
+      bubble.textContent = lines[lineIndex % lines.length];
+      lineIndex++;
+    }
+
+    function showCat(){
+      const rect = wrap.getBoundingClientRect();
+      const x = rect.width * (0.45 + Math.random()*0.1) - 48;
+      const y = rect.height * (0.58 + Math.random()*0.08) - 48;
+
+      cat.classList.add("show");
+      isShown = true;
+
+      setTimeout(() => {
+        cat.style.left = (rect.width/2 - 48) + "px";
+        cat.style.top  = (rect.height*0.55 - 48) + "px";
+        cat.style.transform = "translate(0,0) scale(1)";
+        setCatPos(x, y);
+        nextLine();
+        setTimeout(nextLine, 1200);
+        setTimeout(nextLine, 2600);
+        setTimeout(nextLine, 4200);
+      }, 30);
+    }
+
+    function distanceToCat(px, py){
+      const cx = catX + catW/2;
+      const cy = catY + catH/2;
+      return Math.hypot(px - cx, py - cy);
+    }
+
+    function runAwayFrom(px, py){
+      const rect = wrap.getBoundingClientRect();
+      const cx = catX + catW/2;
+      const cy = catY + catH/2;
+
+      let dx = cx - px, dy = cy - py;
+      const len = Math.hypot(dx, dy) || 1;
+      dx /= len; dy /= len;
+
+      const d = distanceToCat(px, py);
+      const power = clamp((avoidRadius - d) / avoidRadius, 0.2, 1);
+      const jump = 140 + power * 220;
+
+      let targetX = (catX + dx * jump) + (Math.random()*30 - 15);
+      let targetY = (catY + dy * jump) + (Math.random()*30 - 15);
+
+      const pad = 16;
+      targetX = clamp(targetX, pad, rect.width - catW - pad);
+      targetY = clamp(targetY, pad + 60, rect.height - catH - pad);
+
+      cat.style.transition = "left 220ms ease, top 220ms ease";
+      setCatPos(targetX, targetY);
+
+      if (Math.random() < 0.22) {
+        bubble.textContent = ["Yok yok 😼","Dokunma 😾","Heh kaçtım","Yaklaşmaaa"][Math.floor(Math.random()*4)];
+      }
+    }
+
+    function onPointerMove(e){
+      if (!isShown) return;
+      const rect = wrap.getBoundingClientRect();
+      const px = e.clientX - rect.left;
+      const py = e.clientY - rect.top;
+      const d = distanceToCat(px, py);
+      if (d < avoidRadius) runAwayFrom(px, py);
+    }
+
+    wrap.addEventListener("pointermove", onPointerMove);
+    document.addEventListener("touchmove", (e) => e.preventDefault(), { passive:false });
+
+    cat.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      tapCount++;
+      const left = Math.max(0, TAP_TO_UNLOCK - tapCount);
+
+      if (!puzzleUnlocked && left > 0){
+        bubble.textContent = `Yakalandım sandın… yakalanmadım ki 😼 (${left} kaldı)`;
+        footer.textContent = `Kediye ${left} dokunuş kaldı → sonra renkli blok puzzle 🧩`;
+      } else if (!puzzleUnlocked && left === 0){
+        puzzleUnlocked = true;
+        bubble.textContent = "Tamam… hadi puzzle 😼";
+        footer.textContent = "Puzzle açıldı 🧩";
+        openPuzzle();
+      } else {
+        bubble.textContent = "Hehe yine olmadı 😼";
+      }
+
+      const rect = wrap.getBoundingClientRect();
+      runAwayFrom(e.clientX - rect.left, e.clientY - rect.top);
+    });
+
+    window.addEventListener("resize", () => {
+      if (!isShown) return;
+      const rect = wrap.getBoundingClientRect();
+      setCatPos(catX, catY);
+      avoidRadius = Math.max(90, Math.min(140, rect.width * 0.28));
+    });
+
+    setTimeout(showCat, 700);
+
+    // ===== BLOCK PUZZLE (RENKLI) =====
+    const puzzleModal = document.getElementById("puzzleModal");
+    const closePuzzleBtn = document.getElementById("closePuzzle");
+    const resetBtn = document.getElementById("resetBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const boardEl = document.getElementById("board");
+    const trayEl = document.getElementById("tray");
+    const statusEl = document.getElementById("status");
+
+    const ghost = document.getElementById("ghost");
+    const ghostGrid = document.getElementById("ghostGrid");
+
+    const COLS = 6;
+    const ROWS = 10;
+
+    // grid cell = 0 empty, else colorIndex (1..N)
+    let grid = Array.from({length: ROWS}, () => Array(COLS).fill(0));
+
+    // nicer, visible palette
+    const PALETTE = [
+      "#7C3AED", // purple
+      "#06B6D4", // cyan
+      "#22C55E", // green
+      "#F97316", // orange
+      "#EF4444", // red
+      "#EAB308", // yellow
+      "#3B82F6", // blue
+      "#EC4899"  // pink
+    ];
+
+    // pieces: { id, shape, w,h, colorIndex }
+    let pieces = [];
+    let idSeq = 1;
+
+    const SHAPES = [
+      [[1],[1],[1],[1]],
+      [[1,1,1,1]],
+      [[1,1],[1,1]],
+      [[1,1,1],[0,1,0]],
+      [[1,1,0],[0,1,1]],
+      [[0,1,1],[1,1,0]],
+      [[1,0],[1,0],[1,1]],
+      [[0,1],[0,1],[1,1]],
+      [[1,1,1],[1,0,0]],
+      [[1,1,1],[0,0,1]],
+      [[1,1,1]],
+      [[1],[1],[1]],
+      [[1,1]],
+      [[1],[1]]
+    ];
+
+    function setStatus(t){ statusEl.textContent = t; }
+
+    function openPuzzle(){
+      puzzleModal.classList.add("show");
+      ensureTray();
+      renderBoard();
+      renderTray();
+      setStatus("Yerleştir bakalım 😼");
+    }
+    function closePuzzle(){ puzzleModal.classList.remove("show"); }
+
+    closePuzzleBtn.addEventListener("click", closePuzzle);
+
+    resetBtn.addEventListener("click", () => {
+      grid = Array.from({length: ROWS}, () => Array(COLS).fill(0));
+      pieces = [];
+      ensureTray();
+      renderBoard();
+      renderTray();
+      setStatus("Sıfırlandı 😼");
+    });
+
+    clearBtn.addEventListener("click", () => {
+      grid = Array.from({length: ROWS}, () => Array(COLS).fill(0));
+      renderBoard();
+      setStatus("Tahta temiz 😼");
+    });
+
+    function randShape(){
+      const shape = SHAPES[Math.floor(Math.random()*SHAPES.length)];
+      return { shape, h: shape.length, w: shape[0].length };
+    }
+    function newPiece(){
+      const s = randShape();
+      const colorIndex = 1 + Math.floor(Math.random()*PALETTE.length);
+      return { id: idSeq++, ...s, colorIndex };
+    }
+    function ensureTray(){
+      while (pieces.length < 3) pieces.push(newPiece());
+    }
+
+    function renderBoard(){
+      boardEl.innerHTML = "";
+      for (let r=0;r<ROWS;r++){
+        for (let c=0;c<COLS;c++){
+          const cell = document.createElement("div");
+          cell.className = "cell";
+          const v = grid[r][c];
+          if (v !== 0){
+            const col = PALETTE[v-1] || "#fff";
+            cell.style.background = `linear-gradient(180deg, ${col}, rgba(255,255,255,0.18))`;
+            cell.style.border = "1px solid rgba(255,255,255,0.22)";
+          }
+          boardEl.appendChild(cell);
+        }
+      }
+    }
+
+    function renderTray(){
+      trayEl.innerHTML = "";
+      pieces.forEach((p, idx) => {
+        const card = document.createElement("div");
+        card.className = "pieceCard";
+        card.dataset.pid = p.id;
+
+        const col = PALETTE[p.colorIndex-1] || "#fff";
+
+        const label = document.createElement("div");
+        label.className = "pieceLabel";
+        label.innerHTML = `
+          <span style="display:flex;align-items:center;gap:8px;">
+            <span class="dot" style="background:${col}"></span>
+            Parça ${idx+1}
+          </span>
+          <span>#${p.id}</span>
+        `;
+        card.appendChild(label);
+
+        const mini = document.createElement("div");
+        mini.className = "mini";
+        mini.style.gridTemplateColumns = `repeat(${p.w}, 22px)`;
+        mini.style.gridTemplateRows = `repeat(${p.h}, 22px)`;
+
+        for (let rr=0; rr<p.h; rr++){
+          for (let cc=0; cc<p.w; cc++){
+            const mc = document.createElement("div");
+            mc.className = "miniCell";
+            if (p.shape[rr][cc]){
+              mc.style.background = `linear-gradient(180deg, ${col}, rgba(255,255,255,0.18))`;
+              mc.style.border = "1px solid rgba(255,255,255,0.22)";
+            }
+            mini.appendChild(mc);
+          }
+        }
+        card.appendChild(mini);
+
+        card.addEventListener("pointerdown", (e) => startDrag(e, p));
+        trayEl.appendChild(card);
+      });
+    }
+
+    // === Drag logic ===
+    let dragging = null;
+    let boardRect = null;
+
+    function buildGhost(piece){
+      ghostGrid.innerHTML = "";
+      ghostGrid.style.gridTemplateColumns = `repeat(${piece.w}, 22px)`;
+      ghostGrid.style.gridTemplateRows = `repeat(${piece.h}, 22px)`;
+      const col = PALETTE[piece.colorIndex-1] || "#fff";
+
+      for (let r=0;r<piece.h;r++){
+        for (let c=0;c<piece.w;c++){
+          const dot = document.createElement("div");
+          dot.className = "ghostDot";
+          if (piece.shape[r][c]){
+            dot.style.background = `linear-gradient(180deg, ${col}, rgba(255,255,255,0.18))`;
+            dot.style.border = "1px solid rgba(255,255,255,0.22)";
+          }
+          ghostGrid.appendChild(dot);
+        }
+      }
+    }
+
+    function moveGhost(x, y){
+      ghost.style.transform = `translate(${x - 44}px, ${y - 44}px)`;
+    }
+
+    function startDrag(e, piece){
+      e.preventDefault();
+      boardRect = boardEl.getBoundingClientRect();
+      dragging = { piece };
+      buildGhost(piece);
+      moveGhost(e.clientX, e.clientY);
+
+      window.addEventListener("pointermove", onDragMove);
+      window.addEventListener("pointerup", onDragEnd, { once:true });
+    }
+
+    function onDragMove(e){
+      if (!dragging) return;
+      moveGhost(e.clientX, e.clientY);
+    }
+
+    function onDragEnd(e){
+      window.removeEventListener("pointermove", onDragMove);
+      ghost.style.transform = "translate(-9999px,-9999px)";
+      if (!dragging) return;
+
+      boardRect = boardEl.getBoundingClientRect();
+      const x = e.clientX, y = e.clientY;
+
+      const inside = x >= boardRect.left && x <= boardRect.right && y >= boardRect.top && y <= boardRect.bottom;
+      if (!inside){
+        setStatus("Tahtaya bırakmadın 😼");
+        dragging = null;
+        return;
+      }
+
+      // map pointer position -> grid index
+      const relX = x - boardRect.left;
+      const relY = y - boardRect.top;
+
+      const colW = boardRect.width / COLS;
+      const rowH = boardRect.height / ROWS;
+
+      const c0 = Math.floor(relX / colW);
+      const r0 = Math.floor(relY / rowH);
+
+      if (!canPlace(dragging.piece, r0, c0)){
+        setStatus("Oraya olmuyor 😾");
+        dragging = null;
+        return;
+      }
+
+      placePiece(dragging.piece, r0, c0);
+      pieces = pieces.filter(pp => pp.id !== dragging.piece.id);
+      ensureTray();
+
+      clearFullRows();
+
+      renderBoard();
+      renderTray();
+      setStatus("Yerleşti ✅ yenisi geldi 😼");
+
+      dragging = null;
+    }
+
+    function canPlace(piece, r0, c0){
+      for (let r=0;r<piece.h;r++){
+        for (let c=0;c<piece.w;c++){
+          if (!piece.shape[r][c]) continue;
+          const rr = r0 + r;
+          const cc = c0 + c;
+          if (rr < 0 || rr >= ROWS || cc < 0 || cc >= COLS) return false;
+          if (grid[rr][cc] !== 0) return false;
+        }
+      }
+      return true;
+    }
+
+    function placePiece(piece, r0, c0){
+      for (let r=0;r<piece.h;r++){
+        for (let c=0;c<piece.w;c++){
+          if (!piece.shape[r][c]) continue;
+          grid[r0 + r][c0 + c] = piece.colorIndex;
+        }
+      }
+    }
+
+    function clearFullRows(){
+      let cleared = 0;
+      for (let r=ROWS-1; r>=0; r--){
+        const full = grid[r].every(v => v !== 0);
+        if (full){
+          grid.splice(r, 1);
+          grid.unshift(Array(COLS).fill(0));
+          cleared++;
+          r++;
+        }
+      }
+      if (cleared){
+        setStatus(`Satır temizlendi x${cleared} 🧼`);
+        bubble.textContent = "Ooo temizledin ha 😼";
+      }
+    }
+
+    // prep
+    ensureTray();
+  </script>
+</body>
+</html>
